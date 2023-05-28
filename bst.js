@@ -11,6 +11,15 @@ const prettyPrint = (node, prefix = "", isLeft = true) => {
   }
 };
 
+function buildTree(sortedArr, start, end) {
+  if (start > end) return null;
+  const rootIndex = parseInt((start + end) / 2);
+  const node = new Node(sortedArr[rootIndex]);
+  node.left = buildTree(sortedArr, start, rootIndex - 1);
+  node.right = buildTree(sortedArr, rootIndex + 1, end);
+  return node;
+}
+
 class Node {
   constructor(value) {
     this.value = value;
@@ -120,7 +129,7 @@ class Tree {
     const finalArray = [func(root.value)];
     const leftArray = this.preorder(func, root.left);
     const rightArray = this.preorder(func, root.right);
-    return [finalArray, ...leftArray, ...rightArray];
+    return [...finalArray, ...leftArray, ...rightArray];
   }
   inorder(
     func = (a) => {
@@ -132,7 +141,7 @@ class Tree {
     const leftArray = this.inorder(func, root.left);
     const finalArray = [func(root.value)];
     const rightArray = this.inorder(func, root.right);
-    return [...leftArray, finalArray, ...rightArray];
+    return [...leftArray, ...finalArray, ...rightArray];
   }
   postorder(
     func = (a) => {
@@ -144,7 +153,7 @@ class Tree {
     const leftArray = this.postorder(func, root.left);
     const rightArray = this.postorder(func, root.right);
     const finalArray = [func(root.value)];
-    return [...leftArray, ...rightArray, finalArray];
+    return [...leftArray, ...rightArray, ...finalArray];
   }
   height(node = this.root) {
     if (node === null) return 0;
@@ -163,20 +172,38 @@ class Tree {
       return leftHeight + 1;
     }
   }
+  isbalanced(root = this.root) {
+    const leftHeight = this.height(root.left);
+    const rightHeight = this.height(root.right);
+    if (leftHeight - rightHeight <= 1 && leftHeight - rightHeight >= -1) {
+      return true;
+    }
+    return false;
+  }
+  rebalanced() {
+    const sortedArray = this.inorder();
+    this.root = buildTree(sortedArray, 0, sortedArray.length - 1);
+  }
 }
 
-function buildTree(sortedArr, start, end) {
-  if (start > end) return null;
-  const rootIndex = parseInt((start + end) / 2);
-  const node = new Node(sortedArr[rootIndex]);
-  node.left = buildTree(sortedArr, start, rootIndex - 1);
-  node.right = buildTree(sortedArr, rootIndex + 1, end);
-  return node;
-}
-const tree = new Tree([1, 7, 4, 23, 8, 9, 4, 3, 5, 7, 9, 67, 6345, 324]);
+const tree = new Tree(
+  Array.from({ length: 15 }, () => Math.floor(Math.random() * 15))
+);
 tree.root = buildTree(tree.arr, 0, tree.arr.length - 1);
-
-const node = tree.find(1);
-console.log(tree.height());
-console.log(tree.depth(324));
+console.log(tree.isbalanced());
+console.log(tree.levelOrder());
+console.log(tree.preorder());
+console.log(tree.postorder());
+console.log(tree.inorder());
+tree.insert(100);
+tree.insert(99);
+tree.insert(98);
+tree.insert(97);
+console.log(tree.isbalanced());
+tree.rebalanced();
+console.log(tree.isbalanced());
+console.log(tree.levelOrder());
+console.log(tree.preorder());
+console.log(tree.postorder());
+console.log(tree.inorder());
 prettyPrint(tree.root);
